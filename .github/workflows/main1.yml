@@ -1,0 +1,31 @@
+name: Build Pluto
+
+on:
+  push:
+    branches:
+      - main  # 根据需要修改此分支
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Z3 library
+        run: sudo apt-get install -y libz3-dev
+
+      - name: Install Ninja and other dependencies
+        run: sudo apt-get install -y ninja-build cmake python3 gcc g++
+
+      - name: Configure and build Pluto
+        run: |
+          mkdir -p build
+          cmake -G Ninja -S . -B build \
+                -DCMAKE_C_COMPILER="gcc" \
+                -DCMAKE_CXX_COMPILER="g++" \
+                -DCMAKE_INSTALL_PREFIX="install" \
+                -DCMAKE_BUILD_TYPE=Release
+          ninja -j`nproc` -C build install
